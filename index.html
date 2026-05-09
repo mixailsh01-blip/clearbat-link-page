@@ -10,10 +10,34 @@
       width: 100%;
       height: 100%;
       background: #000;
+      overflow: hidden;
+    }
+
+    #fallback {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    #openBtn {
+      border: 1px solid #3a3a3a;
+      background: #101010;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font: 600 14px/1.2 Arial, sans-serif;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
+  <div id="fallback">
+    <button id="openBtn" type="button">Открыть CLEAR.bat</button>
+  </div>
+
   <script>
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
@@ -31,9 +55,7 @@
       const format = (getParam("format") || "v2").trim().toLowerCase();
       const encodeMode = (getParam("encode") || "").trim().toLowerCase();
 
-      if (!url) {
-        return null;
-      }
+      if (!url) return null;
 
       if (format === "v2") {
         if (encodeMode === "password") {
@@ -51,16 +73,32 @@
       return `clearbat://${type}@${url}@${login}:${password}`;
     }
 
-    function launch(url) {
+    function tryLaunch(url) {
       window.location.href = url;
+
+      setTimeout(() => {
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+      }, 250);
+
       setTimeout(() => {
         window.close();
-      }, 400);
+      }, 700);
     }
 
     const clearbatUrl = buildClearbatUrl();
+    const fallback = document.getElementById("fallback");
+    const openBtn = document.getElementById("openBtn");
+
     if (clearbatUrl) {
-      setTimeout(() => launch(clearbatUrl), 150);
+      openBtn.addEventListener("click", () => tryLaunch(clearbatUrl));
+      tryLaunch(clearbatUrl);
+
+      setTimeout(() => {
+        fallback.style.display = "flex";
+      }, 1400);
     }
   </script>
 </body>
