@@ -99,7 +99,7 @@
       const url = getParam("url").trim();
       const login = getParam("login").trim();
       const password = getParam("password");
-      const format = (getParam("format") || "classic").trim().toLowerCase();
+      const format = (getParam("format") || "v2").trim().toLowerCase();
       const encodeMode = (getParam("encode") || "").trim().toLowerCase();
 
       if (!url) {
