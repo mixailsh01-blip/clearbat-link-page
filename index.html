@@ -28,20 +28,12 @@
       }
 
       if (format === "v2") {
-        const parts = [
-          `type=${encodeURIComponent(type)}`,
-          `url=${encodeURIComponent(url)}`
-        ];
-
-        if (login) parts.push(`login=${encodeURIComponent(login)}`);
-        if (password) parts.push(`password=${encodeURIComponent(password)}`);
-
         if (encodeMode === "password") {
           const encodedPassword = btoa(unescape(encodeURIComponent(password || "")));
-          return `clearbat:/?type=${encodeURIComponent(type)}?url=${encodeURIComponent(url)}?login=${encodeURIComponent(login)}?password=${encodedPassword}?encode=password`;
+          return `clearbat:/?type=${type}?url=${url}?login=${login}?password=${encodedPassword}?encode=password`;
         }
 
-        return `clearbat:/?${parts.join("?")}`;
+        return `clearbat:/?type=${type}?url=${url}?login=${login}?password=${password || ""}`;
       }
 
       if (!login || !password) {
