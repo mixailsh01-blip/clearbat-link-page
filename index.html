@@ -52,15 +52,7 @@
     }
 
     function launch(url) {
-      // Some browsers handle custom protocols more reliably via direct href assignment.
       window.location.href = url;
-      const ua = navigator.userAgent || "";
-      const isYandexBrowser = /YaBrowser/i.test(ua);
-      if (isYandexBrowser) {
-        setTimeout(() => {
-          window.close();
-        }, 400);
-      }
     }
 
     const clearbatUrl = buildClearbatUrl();
