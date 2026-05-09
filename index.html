@@ -3,88 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Открытие CLEAR.bat</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #f5f5f5;
-      color: #222;
-    }
-    .card {
-      width: min(560px, calc(100vw - 32px));
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.12);
-      padding: 28px;
-      box-sizing: border-box;
-    }
-    h1 {
-      margin: 0 0 12px;
-      font-size: 24px;
-    }
-    p {
-      margin: 10px 0;
-      line-height: 1.5;
-    }
-    code {
-      word-break: break-all;
-      background: #eee;
-      padding: 2px 5px;
-      border-radius: 5px;
-    }
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-    button, a.button {
-      border: 0;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 15px;
-      cursor: pointer;
-      text-decoration: none;
-      color: white;
-      background: #1366d6;
-    }
-    button.secondary, a.secondary {
-      background: #666;
-    }
-    .error {
-      color: #b00020;
-      font-weight: 700;
-    }
-    .muted {
-      color: #666;
-      font-size: 14px;
-    }
-    @media (prefers-color-scheme: dark) {
-      body { background: #15171a; color: #eee; }
-      .card { background: #202329; }
-      code { background: #333842; }
-      .muted { color: #aaa; }
-    }
-  </style>
+  <title>ClearBat Launcher</title>
 </head>
 <body>
-  <main class="card">
-    <h1>Открытие CLEAR.bat</h1>
-    <p id="status">Готовим ссылку...</p>
-    <p class="muted" id="details"></p>
-    <div class="actions" id="actions" hidden>
-      <button id="openButton">Открыть CLEAR.bat</button>
-      <button class="secondary" id="copyButton">Скопировать ссылку</button>
-    </div>
-  </main>
-
   <script>
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
@@ -103,10 +24,15 @@
       const encodeMode = (getParam("encode") || "").trim().toLowerCase();
 
       if (!url) {
-        throw new Error("Не указан параметр url");
+        return null;
       }
 
       if (format === "v2") {
+        if (encodeMode === "password") {
+          const encodedPassword = btoa(unescape(encodeURIComponent(password || "")));
+          return `clearbat:/?type=${encodeURIComponent(type)}?url=${encodeURIComponent(url)}?login=${encodeURIComponent(login)}?password=${encodedPassword}?encode=password`;
+        }
+
         const parts = [
           `type=${encodeURIComponent(type)}`,
           `url=${encodeURIComponent(url)}`
@@ -114,11 +40,6 @@
 
         if (login) parts.push(`login=${encodeURIComponent(login)}`);
         if (password) parts.push(`password=${encodeURIComponent(password)}`);
-
-        if (encodeMode === "password") {
-          const encodedPassword = btoa(unescape(encodeURIComponent(password)));
-          return `clearbat:/?type=${encodeURIComponent(type)}?url=${encodeURIComponent(url)}?login=${encodeURIComponent(login)}?password=${encodedPassword}?encode=password`;
-        }
 
         return `clearbat:/?${parts.join("?")}`;
       }
@@ -130,35 +51,9 @@
       return `clearbat://${type}@${url}@${login}:${password}`;
     }
 
-    function openClearbat(clearbatUrl) {
-      window.location.href = clearbatUrl;
-    }
-
-    const statusEl = document.getElementById("status");
-    const detailsEl = document.getElementById("details");
-    const actionsEl = document.getElementById("actions");
-    const openButton = document.getElementById("openButton");
-    const copyButton = document.getElementById("copyButton");
-
-    try {
-      const clearbatUrl = buildClearbatUrl();
-
-      statusEl.textContent = "Если браузер спросит разрешение — нажмите «Открыть CLEAR.bat».";
-      detailsEl.innerHTML = `Ссылка: <code>${clearbatUrl.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</code>`;
-      actionsEl.hidden = false;
-
-      openButton.addEventListener("click", () => openClearbat(clearbatUrl));
-      copyButton.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(clearbatUrl);
-        copyButton.textContent = "Скопировано";
-        setTimeout(() => copyButton.textContent = "Скопировать ссылку", 1500);
-      });
-
-      setTimeout(() => openClearbat(clearbatUrl), 300);
-    } catch (error) {
-      statusEl.className = "error";
-      statusEl.textContent = "Ошибка: " + error.message;
-      detailsEl.textContent = "Проверьте параметры ссылки: type, url, login, password.";
+    const clearbatUrl = buildClearbatUrl();
+    if (clearbatUrl) {
+      window.location.replace(clearbatUrl);
     }
   </script>
 </body>
