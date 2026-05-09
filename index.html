@@ -53,6 +53,9 @@
 
     function launch(url) {
       window.location.href = url;
+      setTimeout(() => {
+        window.close();
+      }, 400);
     }
 
     const clearbatUrl = buildClearbatUrl();
