@@ -129,7 +129,7 @@
     }
 
     function buildAnydeskV2Url(id) {
-      return `clearbat:/?type=anydesk?tasks=${id}?password=${ANYDESK_PASSWORD}`;
+      return `clearbat://anydesk@${id}:${ANYDESK_PASSWORD}`;
     }
 
     function tryLaunch(url, withFallback) {
