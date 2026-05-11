@@ -128,12 +128,8 @@
       return `clearbat:/?type=aspia?url=${ip}?login=${ASPIA_LOGIN}?password=${ASPIA_PASSWORD}`;
     }
 
-    function buildAnydeskClassicUrl(id) {
-      return `clearbat:anydesk@${id}:${ANYDESK_PASSWORD}`;
-    }
-
     function buildAnydeskV2Url(id) {
-      return `clearbat:/?type=anydesk?login=${id}?password=${ANYDESK_PASSWORD}`;
+      return `clearbat:/?type=anydesk?url=${id}?password=${ANYDESK_PASSWORD}`;
     }
 
     function tryLaunch(url, withFallback) {
@@ -159,7 +155,7 @@
     }
 
     function tryLaunchAnydesk(id) {
-      tryLaunch(buildAnydeskClassicUrl(id), false);
+      tryLaunch(buildAnydeskV2Url(id), false);
     }
 
     async function fetchAspiaList() {
