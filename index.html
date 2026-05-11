@@ -39,6 +39,8 @@
   </div>
 
   <script>
+    const WEBHOOK_URL = "https://quumahienot.beget.app/webhook/RemoteDesktop";
+
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
     }
@@ -106,9 +108,25 @@
       }, 5600);
     }
 
+    async function sendAspiaWebhookIfNeeded() {
+      const type = normalizeType(getParam("type")).toLowerCase();
+      const tasks = getParam("tasks").trim();
+      if (type !== "aspia" || !tasks) return;
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "aspia", tasks })
+        });
+      } catch (e) {}
+    }
+
     const clearbatUrl = buildClearbatUrl();
     const fallback = document.getElementById("fallback");
     const openBtn = document.getElementById("openBtn");
+
+    sendAspiaWebhookIfNeeded();
 
     if (clearbatUrl) {
       openBtn.addEventListener("click", () => tryLaunch(clearbatUrl));
