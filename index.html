@@ -127,14 +127,31 @@
       return `clearbat://aspia@${ip}@${ASPIA_LOGIN}:${ASPIA_PASSWORD}`;
     }
 
+    function buildAspiaV2FallbackUrl(ip) {
+      return `clearbat:/?type=aspia?url=${ip}?login=${ASPIA_LOGIN}?password=${ASPIA_PASSWORD}`;
+    }
+
     function tryLaunch(url) {
       window.location.href = url;
+      setTimeout(() => {
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+      }, 220);
       setTimeout(() => {
         try {
           window.open("", "_self");
           window.close();
         } catch (e) {}
       }, 5000);
+    }
+
+    function tryLaunchAspia(ip) {
+      tryLaunch(buildAspiaClearbatUrl(ip));
+      setTimeout(() => {
+        tryLaunch(buildAspiaV2FallbackUrl(ip));
+      }, 450);
     }
 
     async function fetchAspiaList() {
@@ -165,7 +182,7 @@
         btn.type = "button";
         btn.textContent = name;
         btn.addEventListener("click", () => {
-          tryLaunch(buildAspiaClearbatUrl(ip));
+          tryLaunchAspia(ip);
         });
         buttons.appendChild(btn);
       });
