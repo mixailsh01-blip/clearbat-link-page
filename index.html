@@ -123,8 +123,8 @@
       return `clearbat://${type}@${url}@${login}:${password}`;
     }
 
-    function buildAspiaClearbatUrl(taskId) {
-      return `clearbat:/?type=aspia?tasks=${taskId}?login=${ASPIA_LOGIN}?password=${ASPIA_PASSWORD}`;
+    function buildAspiaClearbatUrl(ip) {
+      return `clearbat://aspia@${ip}@${ASPIA_LOGIN}:${ASPIA_PASSWORD}`;
     }
 
     function tryLaunch(url) {
@@ -159,13 +159,13 @@
         const entries = Object.entries(obj || {});
         if (!entries.length) return;
         const name = entries[0][0];
-        const id = entries[0][1];
+        const ip = entries[0][1];
 
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = name;
         btn.addEventListener("click", () => {
-          tryLaunch(buildAspiaClearbatUrl(id));
+          tryLaunch(buildAspiaClearbatUrl(ip));
         });
         buttons.appendChild(btn);
       });
