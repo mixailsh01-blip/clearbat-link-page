@@ -91,6 +91,7 @@
     const WEBHOOK_URL = "https://quumahienot.beget.app/webhook/RemoteDesktop";
     const ASPIA_LOGIN = "PosService";
     const ASPIA_PASSWORD = "fencjhcbyu1";
+    const ANYDESK_PASSWORD = "fencjhcbyu1";
 
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
@@ -127,6 +128,10 @@
       return `clearbat:/?type=aspia?url=${ip}?login=${ASPIA_LOGIN}?password=${ASPIA_PASSWORD}`;
     }
 
+    function buildAnydeskV2Url(id) {
+      return `clearbat:/?type=anydesk?tasks=${id}?password=${ANYDESK_PASSWORD}`;
+    }
+
     function tryLaunch(url) {
       window.location.href = url;
       setTimeout(() => {
@@ -147,6 +152,10 @@
       tryLaunch(buildAspiaV2Url(ip));
     }
 
+    function tryLaunchAnydesk(id) {
+      tryLaunch(buildAnydeskV2Url(id));
+    }
+
     async function fetchAspiaList() {
       const type = normalizeType(getParam("type")).toLowerCase();
       const tasks = getParam("tasks").trim();
@@ -159,23 +168,36 @@
       return resp.json();
     }
 
-    function renderAspiaButtons(items) {
+    function renderConnectionButtons(type, items) {
       const panel = document.getElementById("aspiaPanel");
       const buttons = document.getElementById("buttons");
       const status = document.getElementById("status");
+      const title = panel.querySelector("h1");
+      const subtitle = panel.querySelector(".muted");
+
+      if (type === "anydesk") {
+        title.textContent = "Подключения AnyDesk";
+      } else {
+        title.textContent = "Подключения Aspia";
+      }
+      subtitle.textContent = "Выбери кассу для запуска CLEAR.bat";
 
       buttons.innerHTML = "";
       items.forEach((obj) => {
         const entries = Object.entries(obj || {});
         if (!entries.length) return;
         const name = entries[0][0];
-        const ip = entries[0][1];
+        const value = entries[0][1];
 
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = name;
         btn.addEventListener("click", () => {
-          tryLaunchAspia(ip);
+          if (type === "anydesk") {
+            tryLaunchAnydesk(value);
+            return;
+          }
+          tryLaunchAspia(value);
         });
         buttons.appendChild(btn);
       });
@@ -188,11 +210,11 @@
       const type = normalizeType(getParam("type")).toLowerCase();
       const status = document.getElementById("status");
 
-      if (type === "aspia") {
+      if (type === "aspia" || type === "anydesk") {
         try {
           status.textContent = "Загрузка списка подключений...";
           const data = await fetchAspiaList();
-          renderAspiaButtons(Array.isArray(data) ? data : []);
+          renderConnectionButtons(type, Array.isArray(data) ? data : []);
         } catch (e) {
           status.textContent = "Не удалось загрузить подключения.";
         }
