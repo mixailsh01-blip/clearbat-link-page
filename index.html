@@ -160,9 +160,6 @@
 
     function tryLaunchAnydesk(id) {
       tryLaunch(buildAnydeskClassicUrl(id), false);
-      setTimeout(() => {
-        tryLaunch(buildAnydeskV2Url(id), false);
-      }, 350);
     }
 
     async function fetchAspiaList() {
