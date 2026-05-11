@@ -88,7 +88,7 @@
           window.open("", "_self");
           window.close();
         } catch (e) {}
-      }, 700);
+      }, 5000);
 
       // Chrome often blocks direct close() for non-script-opened tabs.
       // This fallback leaves an empty page if closing is denied.
@@ -103,7 +103,7 @@
             }, 60);
           }
         } catch (e) {}
-      }, 1400);
+      }, 5600);
     }
 
     const clearbatUrl = buildClearbatUrl();
