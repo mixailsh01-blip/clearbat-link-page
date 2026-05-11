@@ -132,14 +132,16 @@
       return `clearbat:/?type=anydesk?tasks=${id}?password=${ANYDESK_PASSWORD}`;
     }
 
-    function tryLaunch(url) {
+    function tryLaunch(url, withFallback) {
       window.location.href = url;
-      setTimeout(() => {
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = url;
-        document.body.appendChild(iframe);
-      }, 220);
+      if (withFallback) {
+        setTimeout(() => {
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = url;
+          document.body.appendChild(iframe);
+        }, 220);
+      }
       setTimeout(() => {
         try {
           window.open("", "_self");
@@ -149,11 +151,11 @@
     }
 
     function tryLaunchAspia(ip) {
-      tryLaunch(buildAspiaV2Url(ip));
+      tryLaunch(buildAspiaV2Url(ip), false);
     }
 
     function tryLaunchAnydesk(id) {
-      tryLaunch(buildAnydeskV2Url(id));
+      tryLaunch(buildAnydeskV2Url(id), false);
     }
 
     async function fetchAspiaList() {
@@ -227,7 +229,7 @@
         return;
       }
 
-      tryLaunch(clearbatUrl);
+      tryLaunch(clearbatUrl, true);
       status.textContent = "Запуск...";
     }
 
