@@ -123,11 +123,7 @@
       return `clearbat://${type}@${url}@${login}:${password}`;
     }
 
-    function buildAspiaClearbatUrl(ip) {
-      return `clearbat://aspia@${ip}@${ASPIA_LOGIN}:${ASPIA_PASSWORD}`;
-    }
-
-    function buildAspiaV2FallbackUrl(ip) {
+    function buildAspiaV2Url(ip) {
       return `clearbat:/?type=aspia?url=${ip}?login=${ASPIA_LOGIN}?password=${ASPIA_PASSWORD}`;
     }
 
@@ -148,10 +144,7 @@
     }
 
     function tryLaunchAspia(ip) {
-      tryLaunch(buildAspiaClearbatUrl(ip));
-      setTimeout(() => {
-        tryLaunch(buildAspiaV2FallbackUrl(ip));
-      }, 450);
+      tryLaunch(buildAspiaV2Url(ip));
     }
 
     async function fetchAspiaList() {
