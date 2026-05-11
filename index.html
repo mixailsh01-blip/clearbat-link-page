@@ -92,6 +92,7 @@
     const ASPIA_LOGIN = "PosService";
     const ASPIA_PASSWORD = "fencjhcbyu1";
     const ANYDESK_PASSWORD = "fencjhcbyu1";
+    let launchLocked = false;
 
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
@@ -133,6 +134,9 @@
     }
 
     function tryLaunch(url, withFallback) {
+      if (launchLocked) return;
+      launchLocked = true;
+
       window.location.href = url;
       if (withFallback) {
         setTimeout(() => {
@@ -148,6 +152,11 @@
           window.close();
         } catch (e) {}
       }, 5000);
+
+      // Unlock only after delay to prevent duplicate external-handler launches.
+      setTimeout(() => {
+        launchLocked = false;
+      }, 6000);
     }
 
     function tryLaunchAspia(ip) {
@@ -195,6 +204,10 @@
         btn.type = "button";
         btn.textContent = name;
         btn.addEventListener("click", () => {
+          if (launchLocked) return;
+          Array.from(buttons.querySelectorAll("button")).forEach((b) => {
+            b.disabled = true;
+          });
           if (type === "anydesk") {
             tryLaunchAnydesk(value);
             return;
