@@ -6,50 +6,102 @@
   <title>ClearBat Launcher</title>
   <style>
     :root {
-      --bg: #000;
-      --panel: #0f0f12;
-      --line: #2a2a31;
-      --text: #f2f2f2;
-      --muted: #a8a8b3;
-      --accent: #1f6feb;
+      --bg0: #07090d;
+      --bg1: #0d1118;
+      --panel: #121822;
+      --line: #2a3446;
+      --line-strong: #3c4c68;
+      --text: #ecf2ff;
+      --muted: #9fb0cf;
+      --accent: #4ea1ff;
+      --accent-2: #1f6feb;
+      --ok: #22c55e;
+      --danger: #ef4444;
     }
+
+    * { box-sizing: border-box; }
 
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
-      background: var(--bg);
+      background:
+        radial-gradient(1200px 500px at 10% -20%, #18335766, transparent),
+        radial-gradient(1000px 500px at 90% 120%, #1c2f4d66, transparent),
+        linear-gradient(145deg, var(--bg0), var(--bg1));
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
     }
 
     #app {
       min-height: 100%;
       display: grid;
       place-items: center;
-      padding: 20px;
-      box-sizing: border-box;
+      padding: 18px;
     }
 
     .panel {
-      width: min(720px, 100%);
-      background: var(--panel);
+      width: min(760px, 100%);
+      background: linear-gradient(180deg, #151d29, #111826);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 16px;
-      box-sizing: border-box;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 20px 50px #00000066;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     h1 {
-      font-size: 20px;
-      margin: 0 0 10px;
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: .2px;
     }
 
     .muted {
+      margin: 0;
       color: var(--muted);
-      margin: 0 0 14px;
       font-size: 14px;
     }
+
+    .chip {
+      border: 1px solid var(--line-strong);
+      color: #c9daff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #111928;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      margin: 14px 0;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .retry {
+      border: 1px solid var(--line-strong);
+      background: #172236;
+      color: #eaf2ff;
+      border-radius: 9px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .retry:hover { border-color: var(--accent); }
+    .retry:active { transform: translateY(1px) scale(.99); }
 
     .grid {
       display: grid;
@@ -57,22 +109,56 @@
       gap: 10px;
     }
 
-    button {
-      border: 1px solid #3a3a44;
-      background: #17171d;
-      color: #fff;
-      border-radius: 10px;
+    .conn-btn {
+      border: 1px solid #34435e;
+      background: linear-gradient(180deg, #1b273c, #161f30);
+      color: #f4f8ff;
+      border-radius: 12px;
       padding: 12px;
       cursor: pointer;
       font-size: 14px;
+      text-align: left;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
     }
 
-    button:hover { border-color: var(--accent); }
+    .conn-btn:hover {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, #203252, #1a2840);
+      box-shadow: inset 0 0 0 1px #4ea1ff22;
+    }
+
+    .conn-btn:active {
+      transform: translateY(1px) scale(.99);
+      border-color: #6db3ff;
+      background: linear-gradient(180deg, #24385a, #1d2e4b);
+    }
+
+    .conn-btn:focus,
+    .conn-btn:focus-visible,
+    .retry:focus,
+    .retry:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .conn-btn:disabled,
+    .retry:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
 
     #status {
+      margin-top: 6px;
       color: var(--muted);
       font-size: 14px;
+      min-height: 20px;
     }
+
+    #status.ok { color: var(--ok); }
+    #status.err { color: var(--danger); }
 
     .hidden { display: none; }
   </style>
@@ -80,11 +166,21 @@
 <body>
   <main id="app">
     <section class="panel hidden" id="aspiaPanel">
-      <h1>Подключения Aspia</h1>
-      <p class="muted">Выбери кассу для запуска CLEAR.bat</p>
+      <div class="row">
+        <h1 id="title">Подключения</h1>
+        <span class="chip" id="modeChip">Mode</span>
+      </div>
+      <p class="muted" id="subtitle">Выбери подключение для запуска CLEAR.bat</p>
+
+      <div class="toolbar">
+        <button class="retry" id="reloadBtn" type="button">Обновить список</button>
+      </div>
+
       <div class="grid" id="buttons"></div>
+      <div id="status">Подготовка...</div>
     </section>
-    <div id="status">Подготовка...</div>
+
+    <div id="bootStatus">Подготовка...</div>
   </main>
 
   <script>
@@ -92,7 +188,13 @@
     const ASPIA_LOGIN = "PosService";
     const ASPIA_PASSWORD = "fencjhcbyu1";
     const ANYDESK_PASSWORD = "fencjhcbyu1";
+
+    const FETCH_TIMEOUT_MS = 9000;
+    const FETCH_RETRIES = 3;
+
     let launchLocked = false;
+    let currentType = "";
+    let currentTasks = "";
 
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || "";
@@ -133,11 +235,27 @@
       return `clearbat:/?type=anydesk?login=${id}?password=${ANYDESK_PASSWORD}`;
     }
 
+    function setStatus(text, cls) {
+      const status = document.getElementById("status");
+      status.classList.remove("ok", "err");
+      if (cls) status.classList.add(cls);
+      status.textContent = text;
+    }
+
+    function disableButtons(disabled) {
+      document.querySelectorAll("#buttons button, #reloadBtn").forEach((b) => {
+        b.disabled = disabled;
+      });
+    }
+
     function tryLaunch(url, withFallback) {
       if (launchLocked) return;
       launchLocked = true;
+      disableButtons(true);
+      setStatus("Запуск...", "ok");
 
       window.location.href = url;
+
       if (withFallback) {
         setTimeout(() => {
           const iframe = document.createElement("iframe");
@@ -146,6 +264,7 @@
           document.body.appendChild(iframe);
         }, 220);
       }
+
       setTimeout(() => {
         try {
           window.open("", "_self");
@@ -153,9 +272,9 @@
         } catch (e) {}
       }, 5000);
 
-      // Unlock only after delay to prevent duplicate external-handler launches.
       setTimeout(() => {
         launchLocked = false;
+        disableButtons(false);
       }, 6000);
     }
 
@@ -167,47 +286,87 @@
       tryLaunch(buildAnydeskV2Url(id), false);
     }
 
-    async function fetchAspiaList() {
-      const type = normalizeType(getParam("type")).toLowerCase();
-      const tasks = getParam("tasks").trim();
-      const resp = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, tasks })
-      });
-      if (!resp.ok) throw new Error("Webhook error " + resp.status);
-      return resp.json();
+    function sleep(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function fetchWithTimeout(url, options, timeoutMs) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal, cache: "no-store" });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function fetchConnections(type, tasks) {
+      let lastError = null;
+
+      for (let attempt = 1; attempt <= FETCH_RETRIES; attempt += 1) {
+        try {
+          setStatus(`Загрузка списка... попытка ${attempt}/${FETCH_RETRIES}`);
+
+          const resp = await fetchWithTimeout(
+            WEBHOOK_URL,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache"
+              },
+              body: JSON.stringify({ type, tasks, t: Date.now() })
+            },
+            FETCH_TIMEOUT_MS
+          );
+
+          if (!resp.ok) throw new Error(`Webhook error ${resp.status}`);
+
+          const data = await resp.json();
+          if (!Array.isArray(data) || data.length === 0) {
+            throw new Error("Empty response");
+          }
+
+          return data;
+        } catch (err) {
+          lastError = err;
+          if (attempt < FETCH_RETRIES) {
+            await sleep(350 * attempt);
+          }
+        }
+      }
+
+      throw lastError || new Error("Failed to load list");
     }
 
     function renderConnectionButtons(type, items) {
       const panel = document.getElementById("aspiaPanel");
       const buttons = document.getElementById("buttons");
-      const status = document.getElementById("status");
-      const title = panel.querySelector("h1");
-      const subtitle = panel.querySelector(".muted");
+      const bootStatus = document.getElementById("bootStatus");
+      const title = document.getElementById("title");
+      const subtitle = document.getElementById("subtitle");
+      const chip = document.getElementById("modeChip");
 
-      if (type === "anydesk") {
-        title.textContent = "Подключения AnyDesk";
-      } else {
-        title.textContent = "Подключения Aspia";
-      }
-      subtitle.textContent = "Выбери кассу для запуска CLEAR.bat";
+      title.textContent = type === "anydesk" ? "Подключения AnyDesk" : "Подключения Aspia";
+      chip.textContent = type.toUpperCase();
+      subtitle.textContent = "Выбери подключение для запуска CLEAR.bat";
 
       buttons.innerHTML = "";
+
       items.forEach((obj) => {
         const entries = Object.entries(obj || {});
         if (!entries.length) return;
-        const name = entries[0][0];
-        const value = entries[0][1];
+
+        const name = String(entries[0][0] || "").trim();
+        const value = String(entries[0][1] || "").trim();
+        if (!name || !value) return;
 
         const btn = document.createElement("button");
+        btn.className = "conn-btn";
         btn.type = "button";
         btn.textContent = name;
         btn.addEventListener("click", () => {
           if (launchLocked) return;
-          Array.from(buttons.querySelectorAll("button")).forEach((b) => {
-            b.disabled = true;
-          });
           if (type === "anydesk") {
             tryLaunchAnydesk(value);
             return;
@@ -218,32 +377,46 @@
       });
 
       panel.classList.remove("hidden");
-      status.classList.add("hidden");
+      bootStatus.classList.add("hidden");
+
+      if (!buttons.children.length) {
+        setStatus("Список пуст. Нажми «Обновить список».", "err");
+      } else {
+        setStatus(`Загружено: ${buttons.children.length}`, "ok");
+      }
+    }
+
+    async function loadAndRenderConnections() {
+      try {
+        disableButtons(true);
+        const data = await fetchConnections(currentType, currentTasks);
+        renderConnectionButtons(currentType, data);
+      } catch (e) {
+        setStatus("Не удалось загрузить список. Нажми «Обновить список».", "err");
+      } finally {
+        disableButtons(false);
+      }
     }
 
     async function init() {
-      const type = normalizeType(getParam("type")).toLowerCase();
-      const status = document.getElementById("status");
+      currentType = normalizeType(getParam("type")).toLowerCase();
+      currentTasks = getParam("tasks").trim();
 
-      if (type === "aspia" || type === "anydesk") {
-        try {
-          status.textContent = "Загрузка списка подключений...";
-          const data = await fetchAspiaList();
-          renderConnectionButtons(type, Array.isArray(data) ? data : []);
-        } catch (e) {
-          status.textContent = "Не удалось загрузить подключения.";
-        }
+      if (currentType === "aspia" || currentType === "anydesk") {
+        document.getElementById("reloadBtn").addEventListener("click", loadAndRenderConnections);
+        await loadAndRenderConnections();
         return;
       }
 
+      const bootStatus = document.getElementById("bootStatus");
       const clearbatUrl = buildClearbatUrl();
       if (!clearbatUrl) {
-        status.textContent = "Недостаточно параметров для запуска.";
+        bootStatus.textContent = "Недостаточно параметров для запуска.";
         return;
       }
 
       tryLaunch(clearbatUrl, true);
-      status.textContent = "Запуск...";
+      bootStatus.textContent = "Запуск...";
     }
 
     init();
